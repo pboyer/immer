@@ -1,21 +1,9 @@
 //
-// immer - immutable data structures for C++
-// Copyright (C) 2016, 2017 Juan Pedro Bolivar Puente
+// immer: immutable data structures for C++
+// Copyright (C) 2016, 2017, 2018 Juan Pedro Bolivar Puente
 //
-// This file is part of immer.
-//
-// immer is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// immer is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with immer.  If not, see <http://www.gnu.org/licenses/>.
+// This software is distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://boost.org/LICENSE_1_0.txt
 //
 
 #pragma once
@@ -49,13 +37,13 @@ struct free_list_heap : Base
 
         free_list_node* n;
         do {
-            n = head_.data;
+            n = head().data;
             if (!n) {
                 auto p = base_t::allocate(Size + sizeof(free_list_node));
                 return static_cast<free_list_node*>(p);
             }
-        } while (!head_.data.compare_exchange_weak(n, n->next));
-        head_.count.fetch_sub(1u, std::memory_order_relaxed);
+        } while (!head().data.compare_exchange_weak(n, n->next));
+        head().count.fetch_sub(1u, std::memory_order_relaxed);
         return n;
     }
 
@@ -67,14 +55,14 @@ struct free_list_heap : Base
 
         // we use relaxed, because we are fine with temporarily having
         // a few more/less buffers in free list
-        if (head_.count.load(std::memory_order_relaxed) >= Limit) {
+        if (head().count.load(std::memory_order_relaxed) >= Limit) {
             base_t::deallocate(Size + sizeof(free_list_node), data);
         } else {
             auto n = static_cast<free_list_node*>(data);
             do {
-                n->next = head_.data;
-            } while (!head_.data.compare_exchange_weak(n->next, n));
-            head_.count.fetch_add(1u, std::memory_order_relaxed);
+                n->next = head().data;
+            } while (!head().data.compare_exchange_weak(n->next, n));
+            head().count.fetch_add(1u, std::memory_order_relaxed);
         }
     }
 
@@ -85,10 +73,11 @@ private:
         std::atomic<std::size_t> count;
     };
 
-    static head_t head_;
+    static head_t& head()
+    {
+        static head_t head_{{nullptr}, {0}};
+        return head_;
+    }
 };
-
-template <std::size_t S, std::size_t L, typename B>
-typename free_list_heap<S,L,B>::head_t  free_list_heap<S,L,B>::head_ {{nullptr}, {0}};
 
 } // namespace immer

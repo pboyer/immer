@@ -1,21 +1,9 @@
 //
-// immer - immutable data structures for C++
-// Copyright (C) 2016, 2017 Juan Pedro Bolivar Puente
+// immer: immutable data structures for C++
+// Copyright (C) 2016, 2017, 2018 Juan Pedro Bolivar Puente
 //
-// This file is part of immer.
-//
-// immer is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// immer is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with immer.  If not, see <http://www.gnu.org/licenses/>.
+// This software is distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://boost.org/LICENSE_1_0.txt
 //
 
 #include "benchmark/vector/drop.hpp"
@@ -37,10 +25,10 @@ extern "C" {
 #if IMMER_BENCHMARK_LIBRRB
 NONIUS_BENCHMARK("librrb", benchmark_drop_librrb(make_librrb_vector))
 NONIUS_BENCHMARK("librrb/F", benchmark_drop_librrb(make_librrb_vector_f))
-NONIUS_BENCHMARK("l/librrb", benchmark_drop_lin_librrb(make_librrb_vector));
-NONIUS_BENCHMARK("l/librrb/F", benchmark_drop_lin_librrb(make_librrb_vector_f));
-NONIUS_BENCHMARK("t/librrb", benchmark_drop_mut_librrb(make_librrb_vector));
-NONIUS_BENCHMARK("t/librrb/F", benchmark_drop_mut_librrb(make_librrb_vector_f));
+NONIUS_BENCHMARK("l/librrb", benchmark_drop_lin_librrb(make_librrb_vector))
+NONIUS_BENCHMARK("l/librrb/F", benchmark_drop_lin_librrb(make_librrb_vector_f))
+NONIUS_BENCHMARK("t/librrb", benchmark_drop_mut_librrb(make_librrb_vector))
+NONIUS_BENCHMARK("t/librrb/F", benchmark_drop_mut_librrb(make_librrb_vector_f))
 #endif
 
 NONIUS_BENCHMARK("flex/4B", benchmark_drop<immer::flex_vector<unsigned,def_memory,4>>())

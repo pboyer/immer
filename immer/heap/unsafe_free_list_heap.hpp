@@ -1,21 +1,9 @@
 //
-// immer - immutable data structures for C++
-// Copyright (C) 2016, 2017 Juan Pedro Bolivar Puente
+// immer: immutable data structures for C++
+// Copyright (C) 2016, 2017, 2018 Juan Pedro Bolivar Puente
 //
-// This file is part of immer.
-//
-// immer is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// immer is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with immer.  If not, see <http://www.gnu.org/licenses/>.
+// This software is distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://boost.org/LICENSE_1_0.txt
 //
 
 #pragma once
@@ -36,13 +24,12 @@ struct unsafe_free_list_storage
         std::size_t count;
     };
 
-    static head_t head;
+    static head_t& head()
+    {
+        static head_t head_ {nullptr, 0};
+        return head_;
+    }
 };
-
-template <typename Heap>
-typename unsafe_free_list_storage<Heap>::head_t
-unsafe_free_list_storage<Heap>::head {nullptr, 0};
-
 
 template <template<class>class Storage,
           std::size_t Size,
@@ -61,13 +48,13 @@ public:
         assert(size <= sizeof(free_list_node) + Size);
         assert(size >= sizeof(free_list_node));
 
-        auto n = storage::head.data;
+        auto n = storage::head().data;
         if (!n) {
             auto p = base_t::allocate(Size + sizeof(free_list_node));
             return static_cast<free_list_node*>(p);
         }
-        --storage::head.count;
-        storage::head.data = n->next;
+        --storage::head().count;
+        storage::head().data = n->next;
         return n;
     }
 
@@ -77,23 +64,23 @@ public:
         assert(size <= sizeof(free_list_node) + Size);
         assert(size >= sizeof(free_list_node));
 
-        if (storage::head.count >= Limit)
+        if (storage::head().count >= Limit)
             base_t::deallocate(Size + sizeof(free_list_node), data);
         else {
             auto n = static_cast<free_list_node*>(data);
-            n->next = storage::head.data;
-            storage::head.data = n;
-            ++storage::head.count;
+            n->next = storage::head().data;
+            storage::head().data = n;
+            ++storage::head().count;
         }
     }
 
     static void clear()
     {
-        while (storage::head.data) {
-            auto n = storage::head.data->next;
-            base_t::deallocate(Size + sizeof(free_list_node), storage::head.data);
-            storage::head.data = n;
-            --storage::head.count;
+        while (storage::head().data) {
+            auto n = storage::head().data->next;
+            base_t::deallocate(Size + sizeof(free_list_node), storage::head().data);
+            storage::head().data = n;
+            --storage::head().count;
         }
     }
 };

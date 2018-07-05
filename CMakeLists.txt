@@ -6,12 +6,12 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(immer VERSION 0.4.0)
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-#set(CMAKE_EXPORT_COMPILE_COMMANDS on)
-#set(CMAKE_CXX_EXTENSIONS off)
-#if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
-#endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-extended-offsetof")
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(CMAKE_CXX_EXTENSIONS off)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
+endif()
 
 include(ImmerUtils)
 
@@ -97,6 +97,7 @@ target_link_libraries(immer-dev INTERFACE
   gcmt-lib
   ${CMAKE_THREAD_LIBS_INIT})
 target_compile_definitions(immer-dev INTERFACE
+  -DIMMER_CXX_STANDARD=${CXX_STANDARD}
   -DIMMER_HAS_LIBGC=1
   -DIMMER_NO_FREE_LIST=${DISABLE_FREE_LIST}
   -DIMMER_NO_THREAD_SAFETY=${DISABLE_THREAD_SAFETY}

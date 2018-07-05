@@ -1,21 +1,9 @@
 //
-// immer - immutable data structures for C++
-// Copyright (C) 2016, 2017 Juan Pedro Bolivar Puente
+// immer: immutable data structures for C++
+// Copyright (C) 2016, 2017, 2018 Juan Pedro Bolivar Puente
 //
-// This file is part of immer.
-//
-// immer is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// immer is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with immer.  If not, see <http://www.gnu.org/licenses/>.
+// This software is distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE or copy at http://boost.org/LICENSE_1_0.txt
 //
 
 #pragma once
@@ -27,6 +15,7 @@
 
 #include <immer/config.hpp>
 #include <immer/heap/tags.hpp>
+#include <immer/detail/util.hpp>
 #include <immer/detail/rbts/position.hpp>
 #include <immer/detail/rbts/visitor.hpp>
 
@@ -507,7 +496,7 @@ struct update_visitor
             node_t::delete_leaf(node, pos.count());
             throw;
         }
-    };
+    }
 };
 
 struct dec_visitor
@@ -650,7 +639,7 @@ struct get_mut_visitor
             *location = new_node;
             return new_node->leaf() [pos.index(idx)];
         }
-    };
+    }
 };
 
 template <typename NodeT, bool Mutating = true>
@@ -673,7 +662,7 @@ struct push_tail_mut_visitor
         auto children    = pos.size(idx);
         auto new_idx     = children == size_t{1} << level || level == BL
             ? idx + 1 : idx;
-        auto new_child   = static_cast<node_t*>(nullptr);
+        auto new_child = static_cast<node_t*>(nullptr);
         auto mutate      = Mutating && node->can_mutate(e);
 
         if (new_idx >= branches<B>)
@@ -751,7 +740,7 @@ struct push_tail_mut_visitor
 
     template <typename Pos, typename... Args>
     friend node_t* visit_leaf(this_t, Pos&& pos, edit_t e, node_t* tail, Args&&...)
-    { IMMER_UNREACHABLE; };
+    { IMMER_UNREACHABLE; }
 };
 
 template <typename NodeT>
@@ -824,7 +813,7 @@ struct push_tail_visitor
 
     template <typename Pos, typename... Args>
     friend node_t* visit_leaf(this_t, Pos&& pos, node_t* tail, Args&&...)
-    { IMMER_UNREACHABLE; };
+    { IMMER_UNREACHABLE; }
 };
 
 struct dec_right_visitor
@@ -1024,7 +1013,7 @@ struct slice_right_mut_visitor
             if (Mutating) pos.visit(dec_visitor{});
             return { 0, nullptr, new_tail_size, new_tail };
         }
-    };
+    }
 };
 
 template <typename NodeT, bool Collapse=true>
@@ -1125,7 +1114,7 @@ struct slice_right_visitor
             ? pos.node()->inc()
             : node_t::copy_leaf(pos.node(), new_tail_size);
         return { 0, nullptr, new_tail_size, new_tail };
-    };
+    }
 };
 
 struct dec_left_visitor
@@ -1317,7 +1306,7 @@ struct slice_left_mut_visitor
             if (Mutating) pos.visit(dec_visitor{});
             return { 0, newn };
         }
-    };
+    }
 };
 
 template <typename NodeT, bool Collapse=true>
@@ -1375,7 +1364,7 @@ struct slice_left_visitor
     {
         auto n = node_t::copy_leaf(pos.node(), pos.index(first), pos.count());
         return { 0, n };
-    };
+    }
 };
 
 template <typename Node>
@@ -1971,9 +1960,9 @@ struct concat_merger_mut
                                                 from_data + from_offset + to_copy,
                                                 data + to_offset_);
                     else
-                        uninitialized_move(from_data + from_offset,
-                                           from_data + from_offset + to_copy,
-                                           data + to_offset_);
+                        detail::uninitialized_move(from_data + from_offset,
+                                                  from_data + from_offset + to_copy,
+                                                  data + to_offset_);
                 }
                 to_offset_  += to_copy;
                 from_offset += to_copy;
